@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Micro Tareas">
+<meta name="theme-color" content="#181B21">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23181B21'/%3E%3Ctext x='50' y='64' font-size='52' text-anchor='middle' fill='%2300F0FF'%3E✓%3C/text%3E%3C/svg%3E">
 <title>Calendario</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,23 +82,35 @@ body{
 .neu-btn:active{box-shadow:inset 4px 4px 8px var(--shadow-d), inset -4px -4px 8px var(--shadow-l), inset 2px 2px 4px var(--shadow-d2);transform:translateY(1px);}
 .neu-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-header.neu{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;}
+header.neu{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;gap:14px;}
 .month-title{
   font-family:'Orbitron',sans-serif;
-  font-size:22px;
+  font-size:20px;
   font-weight:700;
-  letter-spacing:4px;
+  letter-spacing:3px;
   min-width:240px;
   text-align:center;
   text-transform:uppercase;
   background:var(--neon-screen);
   border-radius:14px;
-  padding:12px 14px;
+  padding:12px 0;
   color:var(--neon);
   text-shadow:0 0 4px var(--neon), 0 0 12px rgba(0,240,255,.6), 0 0 22px rgba(255,47,214,.35), 1px 0 0 var(--neon2);
   box-shadow:inset 2px 2px 5px rgba(0,0,0,.6), inset -1px -1px 3px rgba(255,255,255,.03);
+  overflow:hidden;position:relative;
 }
-.nav-group{display:flex;gap:10px;}
+.marquee-track{display:inline-block;white-space:nowrap;padding-left:2px;animation:marquee 14s linear infinite;}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.nav-group{display:flex;gap:14px;}
+.toolbar{display:flex;gap:12px;padding:12px 16px;justify-content:center;}
+.tool-btn{width:44px;height:44px;border-radius:14px;font-size:18px;display:flex;align-items:center;justify-content:center;position:relative;}
+.pxicon{width:3px;height:3px;background:transparent;filter:drop-shadow(0 0 2px rgba(0,240,255,.55));}
+.tool-btn.active{color:var(--accent);}
+.tool-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--neon-screen);color:var(--neon);
+  font-size:13px;font-weight:600;padding:12px 18px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;transition:opacity .3s ease, transform .3s ease;z-index:50;text-align:center;max-width:80vw;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
 .nav-btn{
   width:46px;height:46px;display:flex;align-items:center;justify-content:center;
   font-family:'Orbitron',sans-serif;font-size:18px;font-weight:500;line-height:1;
@@ -187,9 +205,13 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
 .save-btn{color:var(--accent);}
 
 @media (max-width:560px){
-  .month-title{font-size:14px;min-width:150px;letter-spacing:2px;padding:10px 8px;}
+  .month-title{font-size:13px;min-width:130px;letter-spacing:1.5px;padding:10px 0;}
   .day{font-size:13px;border-radius:11px;}
   body{padding:20px 10px;}
+  .nav-group{gap:8px;}
+  header.neu{gap:8px;padding:14px 12px;}
+  .nav-btn,.today-btn{height:42px;}
+  .tool-btn{width:40px;height:40px;font-size:16px;}
 }
 </style>
 </head>
@@ -200,11 +222,18 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
       <button class="neu-btn nav-btn" id="prevBtn" aria-label="Mes anterior">‹</button>
       <button class="neu-btn today-btn" id="todayBtn">Hoy</button>
     </div>
-    <div class="month-title" id="monthTitle"></div>
+    <div class="month-title" id="monthTitle"><span class="marquee-track" id="marqueeTrack"></span></div>
     <div class="nav-group">
       <button class="neu-btn nav-btn" id="nextBtn" aria-label="Mes siguiente">›</button>
     </div>
   </header>
+
+  <div class="neu toolbar">
+    <button class="neu-btn tool-btn" id="themeBtn" aria-label="Cambiar tema" title="Cambiar tema"><span class="pxicon" id="themeIcon"></span></button>
+    <button class="neu-btn tool-btn" id="alarmBtn" aria-label="Activar alarmas" title="Activar alarmas de tareas"><span class="pxicon" id="alarmIcon"></span></button>
+    <button class="neu-btn tool-btn" id="exportBtn" aria-label="Exportar datos" title="Exportar respaldo"><span class="pxicon" id="exportIcon"></span></button>
+    <label class="neu-btn tool-btn" aria-label="Importar datos" title="Importar respaldo"><span class="pxicon" id="importIcon"></span><input type="file" id="importInput" accept="application/json"></label>
+  </div>
 
   <div class="neu progress-card">
     <span class="progress-label">Progreso de hoy</span>
@@ -299,14 +328,166 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
   }
 
   const grid = document.getElementById('grid');
-  const monthTitle = document.getElementById('monthTitle');
+  const marqueeTrack = document.getElementById('marqueeTrack');
   const selTitle = document.getElementById('selTitle');
   const eventList = document.getElementById('eventList');
   const progressFill = document.getElementById('progressFill');
   const progressCount = document.getElementById('progressCount');
+  const toast = document.createElement('div'); toast.className='toast'; document.body.appendChild(toast);
+  function showToast(msg){
+    toast.textContent = msg; toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toast.classList.remove('show'), 3500);
+  }
+
+  // --- Iconos "pixel art" (estilo reloj digital) ---
+  function drawPx(el, points, step){
+    step = step || 3;
+    el.style.boxShadow = points.map(p => (p[0]*step)+'px '+(p[1]*step)+'px 0 0 '+p[2]).join(',');
+  }
+  const CYAN = 'var(--neon)', MAGENTA = 'var(--neon2)', AMBER = '#FFD166', DIM = 'var(--text-soft)', RED = 'var(--danger)';
+  const ICONS = {
+    sun: [[3,0,AMBER],[1,1,AMBER],[5,1,AMBER],[2,2,AMBER],[3,2,AMBER],[4,2,AMBER],[0,3,AMBER],[2,3,AMBER],[3,3,AMBER],[4,3,AMBER],[6,3,AMBER],[2,4,AMBER],[3,4,AMBER],[4,4,AMBER],[1,5,AMBER],[5,5,AMBER],[3,6,AMBER]],
+    moon: [[2,0,CYAN],[3,0,CYAN],[4,0,CYAN],[1,1,CYAN],[2,1,CYAN],[0,2,CYAN],[1,2,CYAN],[0,3,CYAN],[1,3,CYAN],[0,4,CYAN],[1,4,CYAN],[1,5,CYAN],[2,5,CYAN],[2,6,CYAN],[3,6,CYAN],[4,6,CYAN]],
+    bellOn: [[3,0,MAGENTA],[2,1,MAGENTA],[3,1,MAGENTA],[4,1,MAGENTA],[2,2,MAGENTA],[3,2,MAGENTA],[4,2,MAGENTA],[1,3,MAGENTA],[2,3,MAGENTA],[3,3,MAGENTA],[4,3,MAGENTA],[5,3,MAGENTA],[1,4,MAGENTA],[2,4,MAGENTA],[3,4,MAGENTA],[4,4,MAGENTA],[5,4,MAGENTA],[0,5,MAGENTA],[1,5,MAGENTA],[2,5,MAGENTA],[3,5,MAGENTA],[4,5,MAGENTA],[5,5,MAGENTA],[6,5,MAGENTA],[3,6,MAGENTA]],
+    bellOff: [[3,0,DIM],[2,1,DIM],[3,1,DIM],[4,1,DIM],[2,2,DIM],[3,2,DIM],[4,2,DIM],[1,3,DIM],[2,3,DIM],[4,3,DIM],[5,3,DIM],[1,4,DIM],[4,4,DIM],[5,4,DIM],[0,5,DIM],[1,5,DIM],[2,5,DIM],[3,5,DIM],[4,5,DIM],[5,5,DIM],[6,5,DIM],[3,6,DIM],[0,6,RED],[1,5,RED],[2,4,RED],[3,3,RED],[4,2,RED],[5,1,RED],[6,0,RED]],
+    down: [[3,1,CYAN],[3,2,CYAN],[1,3,CYAN],[2,3,CYAN],[3,3,CYAN],[4,3,CYAN],[5,3,CYAN],[2,4,CYAN],[3,4,CYAN],[4,4,CYAN],[3,5,CYAN]],
+    up: [[3,1,CYAN],[2,2,CYAN],[3,2,CYAN],[4,2,CYAN],[1,3,CYAN],[2,3,CYAN],[3,3,CYAN],[4,3,CYAN],[5,3,CYAN],[3,4,CYAN],[3,5,CYAN]]
+  };
+  drawPx(document.getElementById('exportIcon'), ICONS.down);
+  drawPx(document.getElementById('importIcon'), ICONS.up);
+
+  // --- Tema claro/oscuro ---
+  const themeBtn = document.getElementById('themeBtn');
+  const themeIcon = document.getElementById('themeIcon');
+  function applyTheme(t){
+    if(t){ document.documentElement.setAttribute('data-theme', t); }
+    else{ document.documentElement.removeAttribute('data-theme'); }
+    const isLight = t === 'light' || (!t && window.matchMedia('(prefers-color-scheme: light)').matches);
+    drawPx(themeIcon, isLight ? ICONS.sun : ICONS.moon);
+  }
+  let savedTheme = null;
+  try{ savedTheme = localStorage.getItem('neu_theme'); }catch(e){}
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', ()=>{
+    const current = document.documentElement.getAttribute('data-theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try{ localStorage.setItem('neu_theme', next); }catch(e){}
+  });
+
+  // --- Sonidos (dopamina) via Web Audio API, sin archivos externos ---
+  let audioCtx = null;
+  function getCtx(){
+    if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+    return audioCtx;
+  }
+  function tone(freq, start, dur, type, gain){
+    const ctx = getCtx(); if(!ctx) return;
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = type||'sine'; osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, ctx.currentTime+start);
+    g.gain.linearRampToValueAtTime(gain||.18, ctx.currentTime+start+.02);
+    g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime+start+dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(ctx.currentTime+start); osc.stop(ctx.currentTime+start+dur+.05);
+  }
+  function playSuccessSound(){
+    tone(523.25,0,.14,'triangle'); tone(659.25,.09,.14,'triangle'); tone(783.99,.18,.22,'triangle');
+  }
+  function playAlarmSound(){
+    tone(880,0,.15,'sine',.22); tone(880,.22,.15,'sine',.22); tone(880,.44,.22,'sine',.22);
+  }
+
+  // --- Notificaciones / alarma 5 min antes ---
+  const alarmBtn = document.getElementById('alarmBtn');
+  let alarmsOn = false;
+  try{ alarmsOn = localStorage.getItem('neu_alarms') === '1'; }catch(e){}
+  const alarmIcon = document.getElementById('alarmIcon');
+  function refreshAlarmBtn(){ alarmBtn.classList.toggle('active', alarmsOn); drawPx(alarmIcon, alarmsOn ? ICONS.bellOn : ICONS.bellOff); }
+  refreshAlarmBtn();
+  alarmBtn.addEventListener('click', async ()=>{
+    if(!alarmsOn){
+      if('Notification' in window && Notification.permission !== 'granted'){
+        try{ await Notification.requestPermission(); }catch(e){}
+      }
+      alarmsOn = true; showToast('Alarmas activadas: avisamos 5 min antes de cada tarea');
+    }else{
+      alarmsOn = false; showToast('Alarmas desactivadas');
+    }
+    try{ localStorage.setItem('neu_alarms', alarmsOn ? '1':'0'); }catch(e){}
+    refreshAlarmBtn();
+  });
+  function triggerAlarm(ev){
+    playAlarmSound();
+    if('Notification' in window && Notification.permission === 'granted'){
+      try{ new Notification('⏰ En 5 minutos: '+ev.title, {body: ev.time || ''}); }catch(e){}
+    }
+    showToast('⏰ En 5 min: '+ev.title);
+  }
+  function checkAlarms(){
+    if(!alarmsOn) return;
+    const now = new Date();
+    let changed = false;
+    Object.keys(events).forEach(dateKey=>{
+      (events[dateKey]||[]).forEach(ev=>{
+        if(!ev.time || ev.done || ev.notified) return;
+        const evDate = new Date(dateKey+'T'+ev.time+':00');
+        const diffMs = evDate - now;
+        if(diffMs > 0 && diffMs <= 5*60*1000){
+          triggerAlarm(ev); ev.notified = true; changed = true;
+        }
+      });
+    });
+    if(changed) save();
+  }
+  setInterval(checkAlarms, 20000);
+  checkAlarms();
+
+  // --- Marquee tipo rótulo LED: mes/año + micro-tareas del día seleccionado ---
+  function updateMarquee(){
+    const dayEvents = (events[selected]||[]);
+    let text = monthNames[viewMonth].toUpperCase() + ' ' + viewYear;
+    if(dayEvents.length){
+      const abbr = dayEvents.slice(0,6).map(e=>{
+        const t = e.title.length>16 ? e.title.slice(0,16)+'…' : e.title;
+        return (e.done?'✓ ':'') + t + (e.time?' '+e.time:'');
+      }).join('   •   ');
+      text += '   •   ' + abbr;
+    }
+    const full = text + '   •   ' + text;
+    marqueeTrack.textContent = full;
+    const dur = Math.max(8, text.length * 0.16);
+    marqueeTrack.style.animationDuration = dur + 's';
+  }
+
+  // --- Exportar / Importar respaldo ---
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(events,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'micro-tareas-respaldo.json'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Respaldo descargado ✓');
+  });
+  document.getElementById('importInput').addEventListener('change', (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        events = Object.assign({}, events, data);
+        save(); render();
+        showToast('Respaldo importado ✓');
+      }catch(err){ showToast('Archivo inválido'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
 
   function render(){
-    monthTitle.textContent = monthNames[viewMonth] + ' ' + viewYear;
+    updateMarquee();
     grid.innerHTML = '';
     const first = new Date(viewYear, viewMonth, 1);
     const startOffset = first.getDay();
@@ -400,8 +581,13 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
       row.querySelector('.t').textContent = ev.title;
       row.querySelector('.check').addEventListener('click', ()=>{
         ev.done = !ev.done;
+        if(ev.done) playSuccessSound();
         save();
         renderEvents();
+        updateMarquee();
+        if(ev.done && total>0 && doneCount+1===total){
+          setTimeout(()=>{ tone(1046.5,0,.12,'triangle'); tone(1318.5,.1,.12,'triangle'); tone(1568,.2,.3,'triangle'); showToast('🎉 ¡Todas las tareas completadas!'); }, 150);
+        }
       });
       row.querySelector('.del').addEventListener('click', ()=>{
         events[selected] = events[selected].filter(e => e !== ev);
@@ -443,6 +629,7 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
     save();
     overlay.classList.remove('open');
     render();
+    showToast('Tarea agregada ✓');
   });
 
   evTitle.addEventListener('keydown', (e)=>{ if(e.key==='Enter') document.getElementById('saveBtn').click(); });
