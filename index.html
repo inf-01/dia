@@ -103,8 +103,8 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
 @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .nav-group{display:flex;gap:14px;}
 .toolbar{display:flex;gap:12px;padding:12px 16px;justify-content:center;}
-.tool-btn{width:44px;height:44px;border-radius:14px;font-size:18px;display:flex;align-items:center;justify-content:center;position:relative;}
-.pxicon{width:3px;height:3px;background:transparent;filter:drop-shadow(0 0 2px rgba(0,240,255,.55));}
+.tool-btn{width:44px;height:44px;border-radius:14px;font-size:18px;display:flex;align-items:center;justify-content:center;position:relative;background:#000000;}
+.pxicon{width:3px;height:3px;background:transparent;filter:drop-shadow(0 0 4px rgba(0,240,255,.6)); position:absolute; top:50%; left:50%; margin-left:-9px; margin-top:-9px;}
 .tool-btn.active{color:var(--accent);}
 .tool-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--neon-screen);color:var(--neon);
@@ -211,7 +211,7 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
   .nav-group{gap:8px;}
   header.neu{gap:8px;padding:14px 12px;}
   .nav-btn,.today-btn{height:42px;}
-  .tool-btn{width:40px;height:40px;font-size:16px;}
+  .tool-btn{width:40px;height:40px;font-size:16px;background:#000000;}
 }
 </style>
 </head>
@@ -341,18 +341,19 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
   }
 
   // --- Iconos "pixel art" (estilo reloj digital) ---
-  function drawPx(el, points, step){
+  let iconColor = '#00F0FF';
+  function drawPx(el, points, step, color){
     step = step || 3;
-    el.style.boxShadow = points.map(p => (p[0]*step)+'px '+(p[1]*step)+'px 0 0 '+p[2]).join(',');
+    el.style.boxShadow = points.map(p => (p[0]*step)+'px '+(p[1]*step)+'px 0 0 '+(color||iconColor)).join(',');
   }
-  const CYAN = 'var(--neon)', MAGENTA = 'var(--neon2)', AMBER = '#FFD166', DIM = 'var(--text-soft)', RED = 'var(--danger)';
   const ICONS = {
-    sun: [[3,0,AMBER],[1,1,AMBER],[5,1,AMBER],[2,2,AMBER],[3,2,AMBER],[4,2,AMBER],[0,3,AMBER],[2,3,AMBER],[3,3,AMBER],[4,3,AMBER],[6,3,AMBER],[2,4,AMBER],[3,4,AMBER],[4,4,AMBER],[1,5,AMBER],[5,5,AMBER],[3,6,AMBER]],
-    moon: [[2,0,CYAN],[3,0,CYAN],[4,0,CYAN],[1,1,CYAN],[2,1,CYAN],[0,2,CYAN],[1,2,CYAN],[0,3,CYAN],[1,3,CYAN],[0,4,CYAN],[1,4,CYAN],[1,5,CYAN],[2,5,CYAN],[2,6,CYAN],[3,6,CYAN],[4,6,CYAN]],
-    bellOn: [[3,0,MAGENTA],[2,1,MAGENTA],[3,1,MAGENTA],[4,1,MAGENTA],[2,2,MAGENTA],[3,2,MAGENTA],[4,2,MAGENTA],[1,3,MAGENTA],[2,3,MAGENTA],[3,3,MAGENTA],[4,3,MAGENTA],[5,3,MAGENTA],[1,4,MAGENTA],[2,4,MAGENTA],[3,4,MAGENTA],[4,4,MAGENTA],[5,4,MAGENTA],[0,5,MAGENTA],[1,5,MAGENTA],[2,5,MAGENTA],[3,5,MAGENTA],[4,5,MAGENTA],[5,5,MAGENTA],[6,5,MAGENTA],[3,6,MAGENTA]],
-    bellOff: [[3,0,DIM],[2,1,DIM],[3,1,DIM],[4,1,DIM],[2,2,DIM],[3,2,DIM],[4,2,DIM],[1,3,DIM],[2,3,DIM],[4,3,DIM],[5,3,DIM],[1,4,DIM],[4,4,DIM],[5,4,DIM],[0,5,DIM],[1,5,DIM],[2,5,DIM],[3,5,DIM],[4,5,DIM],[5,5,DIM],[6,5,DIM],[3,6,DIM],[0,6,RED],[1,5,RED],[2,4,RED],[3,3,RED],[4,2,RED],[5,1,RED],[6,0,RED]],
-    down: [[3,1,CYAN],[3,2,CYAN],[1,3,CYAN],[2,3,CYAN],[3,3,CYAN],[4,3,CYAN],[5,3,CYAN],[2,4,CYAN],[3,4,CYAN],[4,4,CYAN],[3,5,CYAN]],
-    up: [[3,1,CYAN],[2,2,CYAN],[3,2,CYAN],[4,2,CYAN],[1,3,CYAN],[2,3,CYAN],[3,3,CYAN],[4,3,CYAN],[5,3,CYAN],[3,4,CYAN],[3,5,CYAN]]
+    sun: [[3,0],[1,1],[5,1],[2,2],[3,2],[4,2],[0,3],[2,3],[3,3],[4,3],[6,3],[2,4],[3,4],[4,4],[1,5],[5,5],[3,6]],
+    moon: [[2,0],[3,0],[4,0],[1,1],[2,1],[0,2],[1,2],[0,3],[1,3],[0,4],[1,4],[1,5],[2,5],[2,6],[3,6],[4,6]],
+    bellOn: [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[3,3],[4,3],[5,3],[1,4],[2,4],[3,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[3,6]],
+    bellOffBody: [[3,0],[2,1],[3,1],[4,1],[2,2],[3,2],[4,2],[1,3],[2,3],[4,3],[5,3],[1,4],[4,4],[5,4],[0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[3,6]],
+    bellOffSlash: [[0,6],[1,5],[2,4],[3,3],[4,2],[5,1],[6,0]],
+    down: [[3,1],[3,2],[1,3],[2,3],[3,3],[4,3],[5,3],[2,4],[3,4],[4,4],[3,5]],
+    up: [[3,1],[2,2],[3,2],[4,2],[1,3],[2,3],[3,3],[4,3],[5,3],[3,4],[3,5]]
   };
   drawPx(document.getElementById('exportIcon'), ICONS.down);
   drawPx(document.getElementById('importIcon'), ICONS.up);
@@ -364,6 +365,7 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
     if(t){ document.documentElement.setAttribute('data-theme', t); }
     else{ document.documentElement.removeAttribute('data-theme'); }
     const isLight = t === 'light' || (!t && window.matchMedia('(prefers-color-scheme: light)').matches);
+    iconColor = '#00F0FF';
     drawPx(themeIcon, isLight ? ICONS.sun : ICONS.moon);
   }
   let savedTheme = null;
@@ -405,7 +407,7 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
   let alarmsOn = false;
   try{ alarmsOn = localStorage.getItem('neu_alarms') === '1'; }catch(e){}
   const alarmIcon = document.getElementById('alarmIcon');
-  function refreshAlarmBtn(){ alarmBtn.classList.toggle('active', alarmsOn); drawPx(alarmIcon, alarmsOn ? ICONS.bellOn : ICONS.bellOff); }
+  function refreshAlarmBtn(){ alarmBtn.classList.toggle('active', alarmsOn); iconColor = '#00F0FF'; const s=3; if(alarmsOn){ drawPx(alarmIcon, ICONS.bellOn); }else{ const body=ICONS.bellOffBody.map(p=>(p[0]*s)+'px '+(p[1]*s)+'px 0 0 '+iconColor).join(','); const sc='#0088AA'; const slash=ICONS.bellOffSlash.map(p=>(p[0]*s)+'px '+(p[1]*s)+'px 0 0 '+sc).join(','); alarmIcon.style.boxShadow=body+','+slash; } }
   refreshAlarmBtn();
   alarmBtn.addEventListener('click', async ()=>{
     if(!alarmsOn){
