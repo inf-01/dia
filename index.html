@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Micro Tareas">
 <meta name="theme-color" content="#181B21">
-<link rel="icon" type="image/png" href="logo_sin_fondo.png">
-<link rel="apple-touch-icon" href="logo_sin_fondo.png">
+<link rel="icon" type="image/png" href="2.png">
+<link rel="apple-touch-icon" href="2.png">
 <title>Calendario</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,6 +33,10 @@
   --neon:#00F0FF;
   --neon2:#FF2FD6;
   --neon-screen:#0A0E14;
+  --bt-dia:#0A7C8C;
+  --bt-cero:#C2188C;
+  --bt-glow-dia:none;
+  --bt-glow-cero:none;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -42,12 +46,16 @@
     --bg:#181B21; --surface:#242832; --surface-hi:#2A2F3A; --surface-lo:#1E222A; --shadow-l:#333844; --shadow-d:#0E1014; --shadow-d2:#08090C;
     --text:#EDEFF2; --text-soft:#8A93A3; --accent:#6E9CFB; --accent-soft:#2A3550;
     --sunday:#F2857D; --holiday:#5FC98A;
+    --bt-dia:#00F0FF; --bt-cero:#FF2FD6;
+    --bt-glow-dia:0 0 14px rgba(0,240,255,.5); --bt-glow-cero:0 0 14px rgba(255,47,214,.45);
   }
 }
 :root[data-theme="dark"]{
   --bg:#181B21; --surface:#242832; --surface-hi:#2A2F3A; --surface-lo:#1E222A; --shadow-l:#333844; --shadow-d:#0E1014; --shadow-d2:#08090C;
   --text:#EDEFF2; --text-soft:#8A93A3; --accent:#6E9CFB; --accent-soft:#2A3550;
   --sunday:#F2857D; --holiday:#5FC98A;
+  --bt-dia:#00F0FF; --bt-cero:#FF2FD6;
+  --bt-glow-dia:0 0 14px rgba(0,240,255,.5); --bt-glow-cero:0 0 14px rgba(255,47,214,.45);
 }
 *{margin:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
@@ -60,7 +68,7 @@ body{
   padding:32px 16px;
   min-height:100%;
 }
-.app{width:100%;max-width:900px;display:flex;flex-direction:column;gap:20px;}
+.app{width:100%;max-width:900px;min-width:0;display:flex;flex-direction:column;gap:20px;}
 
 .neu{background:linear-gradient(155deg, var(--surface-hi), var(--surface-lo));border-radius:24px;
   box-shadow:
@@ -83,7 +91,7 @@ body{
 .neu-btn:active{box-shadow:inset 4px 4px 8px var(--shadow-d), inset -4px -4px 8px var(--shadow-l), inset 2px 2px 4px var(--shadow-d2);transform:translateY(1px);}
 .neu-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
-header.neu{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;gap:14px;}
+header.neu{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;gap:14px;min-width:0;}
 .month-title{
   font-family:'Orbitron',sans-serif;
   font-size:20px;
@@ -107,31 +115,18 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
 .tool-btn{width:44px;height:44px;border-radius:14px;font-size:18px;display:flex;align-items:center;justify-content:center;position:relative;background:#000000;}
 .pxicon{width:3px;height:3px;background:transparent;filter:drop-shadow(0 0 4px rgba(0,240,255,.6)); position:absolute; top:50%; left:50%; margin-left:-9px; margin-top:-9px;}
 .tool-btn.active{color:var(--accent);}
-.brand{display:flex;justify-content:flex-end;align-items:center;}
-.brand-btn{display:block;width:96px;padding:0;border:none;border-radius:16px;overflow:hidden;
-  background:var(--neon-screen);cursor:pointer;
-  box-shadow:
-    6px 6px 14px var(--shadow-d),
-    -6px -6px 14px var(--shadow-l),
-    3px 3px 6px var(--shadow-d2),
-    inset 0 1px 0 rgba(255,255,255,.35),
-    0 0 8px rgba(0,240,255,.6),
-    0 0 22px rgba(0,240,255,.4),
-    0 0 44px rgba(0,240,255,.25);
-  transition:transform .12s ease, box-shadow .18s ease;}
+.brand{display:flex;justify-content:space-between;align-items:center;padding-bottom:40px;gap:12px;min-width:0;width:100%;}
+.brand-title{max-width:calc(100% - 108px);min-width:0;flex-shrink:1;white-space:nowrap;overflow:hidden;display:flex;align-items:baseline;gap:.3em;font-size:26px;font-weight:800;line-height:1;letter-spacing:.2px;}
+.brand-title .bt-dia{color:var(--bt-dia);text-shadow:var(--bt-glow-dia);}
+.brand-title .bt-cero{color:var(--bt-cero);text-shadow:var(--bt-glow-cero);}
+.brand-title .bt-sep{color:var(--text-soft);font-weight:400;opacity:.8;}
+.brand-title .bt-sub{color:var(--text-soft);font-size:.6em;font-weight:600;letter-spacing:.3px;}
+.brand-btn{display:block;width:96px;padding:0;border:none;background:none;line-height:0;cursor:pointer;
+  transition:transform .12s ease, opacity .18s ease;flex-shrink:0;}
 .brand-btn img{display:block;width:100%;height:auto;}
-.brand-btn:hover{box-shadow:
-    7px 7px 16px var(--shadow-d),
-    -7px -7px 16px var(--shadow-l),
-    4px 4px 8px var(--shadow-d2),
-    inset 0 1px 0 rgba(255,255,255,.35),
-    0 0 10px rgba(0,240,255,.8),
-    0 0 28px rgba(0,240,255,.55),
-    0 0 56px rgba(0,240,255,.32);}
-.brand-btn:active{transform:translateY(3px) scale(.985);
-  box-shadow:inset 4px 4px 9px rgba(0,0,0,.75), inset -2px -2px 6px rgba(255,255,255,.06),
-    0 0 8px rgba(0,240,255,.6), 0 0 22px rgba(0,240,255,.4), 0 0 44px rgba(0,240,255,.25);}
-.brand-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+.brand-btn:hover{transform:scale(1.05);}
+.brand-btn:active{transform:scale(.96);opacity:.85;}
+.brand-btn:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:8px;}
 .tool-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--neon-screen);color:var(--neon);
   font-size:13px;font-weight:600;padding:12px 18px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.4);
@@ -238,7 +233,8 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
   header.neu{gap:8px;padding:14px 12px;}
   .nav-btn,.today-btn{height:42px;}
   .tool-btn{width:40px;height:40px;font-size:16px;background:#000000;}
-  .brand-btn{width:78px;border-radius:14px;}
+  .brand-btn{width:78px;}
+  .brand-title{font-size:18px;max-width:calc(100% - 90px);}
 }
 </style>
 </head>
@@ -284,6 +280,7 @@ header.neu{display:flex;align-items:center;justify-content:space-between;padding
   </div>
 
   <div class="brand">
+    <div class="brand-title"><span class="bt-name"><span class="bt-dia">Día</span> <span class="bt-cero">Cero</span></span><span class="bt-sep">|</span><span class="bt-sub">Micro-tareas y Foco</span></div>
     <button class="brand-btn" type="button" id="brandBtn" aria-label="Logo"><img src="2.png" alt="Logo"></button>
   </div>
 </div>
